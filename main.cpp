@@ -16,7 +16,6 @@ struct Cell
 {
     bool isAlive;
     int neighbour_count;
-    bool hasChanged;
 };
 
 void IncreaseNeighbourCounts(std::vector<std::vector<Cell>> &grid, int x, int y)
@@ -48,7 +47,7 @@ void UpdateGrid(std::vector<std::vector<Cell>> &grid, std::vector<std::vector<Ce
 {
     for(int i = 0; i < height; i++){
         for(int j = 0; j < width; j++){
-            new_grid[i][j] = {false, 0, false};
+            new_grid[i][j] = {false, 0};
         }
     }
 
@@ -57,15 +56,7 @@ void UpdateGrid(std::vector<std::vector<Cell>> &grid, std::vector<std::vector<Ce
             if((grid[i][j].isAlive && (grid[i][j].neighbour_count == 2 || grid[i][j].neighbour_count == 3)) ||
                 (!grid[i][j].isAlive && grid[i][j].neighbour_count == 3)){
                 new_grid[i][j].isAlive = true;
-                if(!grid[i][j].isAlive){
-                    new_grid[i][j].hasChanged = true;
-                }
                 IncreaseNeighbourCounts(new_grid, i, j);
-            }
-            else{
-                if(grid[i][j].isAlive){
-                    new_grid[i][j].hasChanged = true;
-                }
             }
         }
     }
@@ -79,7 +70,7 @@ void InitializeGrid(std::vector<std::vector<Cell>> &grid)
         for(int j = 0; j < WIDTH; j++)
         {
             int random = rand() % 2;
-            grid[i][j] = {(bool)random, 0, false};
+            grid[i][j] = {(bool)random, 0};
             if(random){
                 IncreaseNeighbourCounts(grid, i, j);
             }
@@ -92,7 +83,7 @@ void DrawArray(const std::vector<std::vector<Cell>> &grid, bool show_grid)
     for (int i = 0; i < HEIGHT; i++) {
         int start = -1; // Track the start of a sequence of cells to be drawn
         for (int j = 0; j < WIDTH; j++) {
-            if (grid[i][j].hasChanged || grid[i][j].isAlive) {
+            if (grid[i][j].isAlive) {
                 if (start == -1) {
                     start = j; // Start of a new sequence
                 }
@@ -129,7 +120,6 @@ void DrawCell(std::vector<std::vector<Cell>> &grid, int x, int y)
 {
     if(!grid[x][y].isAlive){
         grid[x][y].isAlive = true;
-        grid[x][y].hasChanged = true;
         IncreaseNeighbourCounts(grid, x, y);
     }
 }
@@ -138,7 +128,6 @@ void EraseCell(std::vector<std::vector<Cell>> &grid, int x, int y)
 {
     if(grid[x][y].isAlive){
         grid[x][y].isAlive = false;
-        grid[x][y].hasChanged = true;
         DecreaseNeighbourCounts(grid, x, y);
     }
 }
@@ -160,8 +149,8 @@ int main(int argc, char* argv[])
     InitWindow(WIDTH, HEIGHT, "Pdaloxd - Game Of Life");
     SetTargetFPS(60);
 
-    std::vector<std::vector<Cell>> grid(HEIGHT, std::vector<Cell>(WIDTH, {false, 0, false}));
-    std::vector<std::vector<Cell>> new_grid(HEIGHT, std::vector<Cell>(WIDTH, {false, 0, false}));
+    std::vector<std::vector<Cell>> grid(HEIGHT, std::vector<Cell>(WIDTH, {false, 0}));
+    std::vector<std::vector<Cell>> new_grid(HEIGHT, std::vector<Cell>(WIDTH, {false, 0}));
 
     InitializeGrid(grid);
 
